@@ -10,10 +10,9 @@ import Settings from './pages/Settings'
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Login />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><DetectionHistory /></ProtectedRoute>} />
           <Route path="/traps" element={<ProtectedRoute><TrapDetails /></ProtectedRoute>} />
