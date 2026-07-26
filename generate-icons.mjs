@@ -1,12 +1,11 @@
 import sharp from 'sharp'
-import { readFileSync, mkdirSync } from 'fs'
+import { mkdirSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const svgPath = join(__dirname, 'public', 'masked-icon.svg')
-const outDir  = join(__dirname, 'public', 'icons')
-const svgBuf  = readFileSync(svgPath)
+const srcImage  = join(__dirname, 'Gemini_Generated_Image_mnqsctmnqsctmnqs.png')
+const outDir    = join(__dirname, 'public', 'icons')
 
 mkdirSync(outDir, { recursive: true })
 
@@ -25,7 +24,7 @@ const icons = [
 ]
 
 for (const { name, size } of icons) {
-  await sharp(svgBuf)
+  await sharp(srcImage)
     .resize(size, size)
     .png()
     .toFile(join(outDir, name))
@@ -33,11 +32,11 @@ for (const { name, size } of icons) {
 }
 
 // apple-touch-icon (180x180) in public root
-await sharp(svgBuf).resize(180, 180).png().toFile(join(__dirname, 'public', 'apple-touch-icon.png'))
+await sharp(srcImage).resize(180, 180).png().toFile(join(__dirname, 'public', 'apple-touch-icon.png'))
 console.log('✅ Generated apple-touch-icon.png')
 
-// favicon.ico (32x32 PNG — browsers accept PNG as favicon)
-await sharp(svgBuf).resize(32, 32).png().toFile(join(__dirname, 'public', 'favicon.ico'))
+// favicon.ico
+await sharp(srcImage).resize(32, 32).png().toFile(join(__dirname, 'public', 'favicon.ico'))
 console.log('✅ Generated favicon.ico')
 
 console.log('\n🎉 All PWA icons generated successfully!')
