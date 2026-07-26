@@ -8,75 +8,65 @@ import {
   query,
   orderBy,
   limit,
-  where,
+  setDoc,
   serverTimestamp,
 } from 'firebase/firestore'
-import { db } from '../firebase/firebase'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { db, storage } from '../firebase/firebase'
 
-// Collections
-const DETECTIONS = 'detections'
-const TRAPS = 'traps'
+const TRAPS    = 'traps'
 const SETTINGS = 'settings'
 
-// --- Detections ---
-export const subscribeToDetections = (callback, maxResults = 50) => {
-  const q = query(
-    collection(db, DETECTIONS),
-    orderBy('detectedAt', 'desc'),
-    limit(maxResults)
-  )
-  return onSnapshot(q, (snap) => {
-    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    callback(data)
-  })
-}
+// ─── Traps (main collection — written by Python YOLO script) ─────────────────
 
-export const subscribeToRecentDetections = (callback, count = 5) => {
-  const q = query(
-    collection(db, DETECTIONS),
-    orderBy('detectedAt', 'desc'),
-    limit(count)
-  )
-  return onSnapshot(q, (snap) => {
-    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    callback(data)
-  })
-}
-
-export const subscribeToDetectionsByTrap = (trapId, callback) => {
-  const q = query(
-    collection(db, DETECTIONS),
-    where('trapId', '==', trapId),
-    orderBy('detectedAt', 'desc')
-  )
-  return onSnapshot(q, (snap) => {
-    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    callback(data)
-  })
-}
-
-export const addDetection = (data) =>
-  addDoc(collection(db, DETECTIONS), { ...data, detectedAt: serverTimestamp() })
-
-export const deleteDetection = (id) => deleteDoc(doc(db, DETECTIONS, id))
-
-// --- Traps ---
+/**
+ * Subscribe to all traps ordered by latest timestamp.
+ * Firestore doc shape:
+ * { trapId, status, confidence, imageUrl, timestamp, location?, description?, active? }
+ */
 export const subscribeToTraps = (callback) => {
-  const q = query(collection(db, TRAPS), orderBy('createdAt', 'desc'))
+  const q = query(collection(db, TRAPS), orderBy('timestamp', 'desc'))
   return onSnapshot(q, (snap) => {
-    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    callback(data)
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
   })
 }
 
+export const subscribeToRecentTraps = (callback, count = 6) => {
+  const q = query(collection(db, TRAPS), orderBy('timestamp', 'desc'), limit(count))
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export const subscribeToTrap = (trapDocId, callback) => {
+  return onSnapshot(doc(db, TRAPS, trapDocId), (snap) => {
+    if (snap.exists()) callback({ id: snap.id, ...snap.data() })
+  })
+}
+
+/** Manually add a trap record (admin use) */
 export const addTrap = (data) =>
-  addDoc(collection(db, TRAPS), { ...data, createdAt: serverTimestamp() })
+  addDoc(collection(db, TRAPS), { ...data, timestamp: serverTimestamp() })
 
 export const updateTrap = (id, data) => updateDoc(doc(db, TRAPS, id), data)
 
 export const deleteTrap = (id) => deleteDoc(doc(db, TRAPS, id))
 
-// --- Settings ---
+// ─── Firebase Storage ─────────────────────────────────────────────────────────
+
+/**
+ * Upload an image file to Firebase Storage and return the download URL.
+ * Path: detections/{trapId}/{timestamp}_{filename}
+ */
+export const uploadDetectionImage = async (file, trapId) => {
+  const path = `detections/${trapId}/${Date.now()}_${file.name}`
+  const storageRef = ref(storage, path)
+  const snapshot = await uploadBytes(storageRef, file)
+  return getDownloadURL(snapshot.ref)
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+
 export const subscribeToSettings = (userId, callback) => {
   return onSnapshot(doc(db, SETTINGS, userId), (snap) => {
     callback(snap.exists() ? { id: snap.id, ...snap.data() } : null)
@@ -84,14 +74,20 @@ export const subscribeToSettings = (userId, callback) => {
 }
 
 export const saveSettings = (userId, data) =>
-  updateDoc(doc(db, SETTINGS, userId), data)
+  setDoc(doc(db, SETTINGS, userId), data, { merge: true })
 
-// --- YOLO API Integration (ready for future use) ---
-// export const runYoloDetection = async (imageUrl) => {
-//   const res = await fetch('https://your-python-api/detect', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ image_url: imageUrl }),
-//   })
-//   return res.json()
-// }
+// ─── Python YOLO Integration (ready — no changes needed in frontend) ──────────
+//
+// Your Python script should write to Firestore like this:
+//
+// import firebase_admin
+// from firebase_admin import credentials, firestore, storage
+//
+// db.collection('traps').add({
+//   'trapId':     'TRAP001',
+//   'status':     'RPW Detected',   # or 'No RPW'
+//   'confidence': 96,               # integer 0-100
+//   'imageUrl':   '<Storage download URL>',
+//   'timestamp':  firestore.SERVER_TIMESTAMP,
+//   'location':   'North Field',
+// })

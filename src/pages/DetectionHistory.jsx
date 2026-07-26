@@ -3,35 +3,33 @@ import Layout from '../components/Layout'
 import DetectionCard from '../components/DetectionCard'
 import LoadingSpinner from '../components/LoadingSpinner'
 import EmptyState from '../components/EmptyState'
-import { useDetections } from '../hooks/useDetections'
-import { deleteDetection } from '../services/firestoreService'
+import { useTraps } from '../hooks/useTraps'
+import { deleteTrap } from '../services/firestoreService'
+import { isDetected } from '../utils/helpers'
 
 export default function DetectionHistory() {
-  const { detections, loading } = useDetections(100)
-  const [filter, setFilter] = useState('all') // all | detected | clear
+  const { traps, loading } = useTraps()
+  const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
-  const filtered = detections.filter((d) => {
+  const filtered = traps.filter((t) => {
     const matchFilter =
       filter === 'all' ||
-      (filter === 'detected' && d.detected) ||
-      (filter === 'clear' && !d.detected)
-    const matchSearch =
-      !search || d.trapId?.toLowerCase().includes(search.toLowerCase())
+      (filter === 'detected' && isDetected(t)) ||
+      (filter === 'clear' && !isDetected(t))
+    const matchSearch = !search || t.trapId?.toLowerCase().includes(search.toLowerCase()) || t.location?.toLowerCase().includes(search.toLowerCase())
     return matchFilter && matchSearch
   })
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this detection record?')) {
-      await deleteDetection(id)
-    }
+    if (window.confirm('Delete this detection record?')) await deleteTrap(id)
   }
 
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Detection History</h1>
-        <p className="text-gray-500 text-sm mt-1">All recorded detection events</p>
+        <h1 className="page-title">Detection History</h1>
+        <p className="page-subtitle">All recorded detection events from Firestore</p>
       </div>
 
       {/* Filters */}
@@ -39,26 +37,27 @@ export default function DetectionHistory() {
         <input
           type="text"
           className="input sm:max-w-xs"
-          placeholder="Search by Trap ID..."
+          placeholder="Search by Trap ID or location..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <div className="flex gap-2">
-          {['all', 'detected', 'clear'].map((f) => (
+          {[
+            { key: 'all', label: 'All' },
+            { key: 'detected', label: '🚨 RPW' },
+            { key: 'clear', label: '✅ Clear' },
+          ].map(({ key, label }) => (
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors
-                ${filter === f
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
-                }`}
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all
+                ${filter === key ? 'bg-primary-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
             >
-              {f === 'all' ? 'All' : f === 'detected' ? '🚨 RPW' : '✅ Clear'}
+              {label}
             </button>
           ))}
         </div>
-        <span className="text-sm text-gray-500 self-center ml-auto">
+        <span className="text-sm text-gray-400 self-center sm:ml-auto">
           {filtered.length} record{filtered.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -66,15 +65,11 @@ export default function DetectionHistory() {
       {loading ? (
         <LoadingSpinner message="Loading history..." />
       ) : filtered.length === 0 ? (
-        <EmptyState
-          icon="📋"
-          title="No records found"
-          message="Try adjusting your filters or search term."
-        />
+        <EmptyState icon="📋" title="No records found" message="Try adjusting your filters or search term." />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((d) => (
-            <DetectionCard key={d.id} detection={d} onDelete={handleDelete} />
+          {filtered.map((t) => (
+            <DetectionCard key={t.id} detection={t} onDelete={handleDelete} />
           ))}
         </div>
       )}

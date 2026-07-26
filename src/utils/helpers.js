@@ -10,17 +10,42 @@ export const formatDate = (timestamp) => {
   }).format(date)
 }
 
-export const formatConfidence = (value) => {
-  if (value == null) return '—'
-  return `${(value * 100).toFixed(1)}%`
+export const formatTimeAgo = (timestamp) => {
+  if (!timestamp) return '—'
+  const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp)
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
 }
 
-export const getStatusLabel = (detected) =>
-  detected ? 'RPW Detected' : 'No RPW'
+// Handles both integer (96) and decimal (0.96) confidence values
+export const normalizeConfidence = (value) => {
+  if (value == null) return null
+  return value > 1 ? value : Math.round(value * 100)
+}
+
+export const formatConfidence = (value) => {
+  const v = normalizeConfidence(value)
+  return v != null ? `${v}%` : '—'
+}
 
 export const getConfidenceColor = (value) => {
-  if (value == null) return 'text-gray-500'
-  if (value >= 0.8) return 'text-red-600'
-  if (value >= 0.5) return 'text-yellow-600'
+  const v = normalizeConfidence(value)
+  if (v == null) return 'text-gray-400'
+  if (v >= 80) return 'text-red-600'
+  if (v >= 50) return 'text-yellow-600'
   return 'text-green-600'
 }
+
+export const getConfidenceBarColor = (value) => {
+  const v = normalizeConfidence(value)
+  if (v == null) return 'bg-gray-300'
+  if (v >= 80) return 'bg-red-500'
+  if (v >= 50) return 'bg-yellow-500'
+  return 'bg-green-500'
+}
+
+export const isDetected = (trap) =>
+  trap?.status === 'RPW Detected' || trap?.detected === true
