@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable safe zone: content within center 80% (approx 205px padding each side) -->
+  <rect width="512" height="512" fill="#16a34a"/>
+  <!-- Palm tree simplified icon -->
+  <rect x="240" y="260" width="32" height="160" rx="8" fill="#ffffff"/>
+  <!-- Left frond -->
+  <ellipse cx="180" cy="220" rx="80" ry="22" fill="#ffffff" transform="rotate(-30 180 220)"/>
+  <!-- Right frond -->
+  <ellipse cx="332" cy="220" rx="80" ry="22" fill="#ffffff" transform="rotate(30 332 220)"/>
+  <!-- Center frond -->
+  <ellipse cx="256" cy="180" rx="22" ry="90" fill="#ffffff"/>
+  <!-- Weevil dot indicator -->
+  <circle cx="340" cy="300" r="28" fill="#ef4444"/>
+  <text x="340" y="310" text-anchor="middle" font-size="28" fill="white">!</text>
+</svg>
