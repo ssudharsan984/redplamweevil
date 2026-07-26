@@ -31,7 +31,9 @@ export default function Dashboard() {
     <Layout>
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-primary-700 to-primary-500 rounded-2xl p-6 mb-6 text-white relative overflow-hidden">
-        <div className="absolute right-4 top-0 text-8xl opacity-10 select-none">🌴</div>
+        <div className="absolute right-4 top-0 opacity-10 select-none">
+          <img src="/appstore-images/android/launchericon-192x192.png" alt="" className="w-24 h-24" />
+        </div>
         <div className="relative z-10">
           <p className="text-primary-100 text-sm font-medium">{greeting}</p>
           <h1 className="text-2xl font-extrabold mt-0.5 capitalize">{name} 👋</h1>

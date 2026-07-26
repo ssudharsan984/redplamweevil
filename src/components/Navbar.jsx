@@ -38,7 +38,7 @@ export default function Navbar() {
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="text-xl">🌴</span>
+          <img src="/appstore-images/android/launchericon-96x96.png" alt="RPW" className="w-7 h-7 rounded-lg" />
           <span className="font-bold text-base tracking-tight hidden sm:block">RPW Detection</span>
           <span className="font-bold text-base tracking-tight sm:hidden">RPW</span>
         </div>
@@ -88,7 +88,7 @@ export default function Navbar() {
         {/* Mobile header */}
         <div className="flex items-center justify-between px-4 py-4 md:hidden border-b border-primary-700/50">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🌴</span>
+            <img src="/appstore-images/android/launchericon-96x96.png" alt="RPW" className="w-8 h-8 rounded-lg" />
             <span className="font-bold">RPW Detect</span>
           </div>
           <button onClick={() => setOpen(false)} className="p-1.5 hover:bg-primary-700 rounded-lg transition text-primary-200">
@@ -134,7 +134,7 @@ export default function Navbar() {
 
         <div className="px-4 py-4 border-t border-primary-700/50">
           <div className="flex items-center gap-2 mb-3">
-            <span className="pulse-dot" />
+            <img src="/appstore-images/android/launchericon-48x48.png" alt="" className="w-5 h-5 rounded" />
             <span className="text-xs text-primary-300">System Online</span>
           </div>
           <p className="text-xs text-primary-400">v1.0.0 · RPW Detection System</p>

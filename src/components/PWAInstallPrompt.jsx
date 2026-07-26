@@ -38,8 +38,8 @@ export default function PWAInstallPrompt() {
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-6 md:max-w-sm">
       <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 flex items-start gap-3">
-        <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
-          🌴
+        <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0">
+          <img src="/appstore-images/android/launchericon-144x144.png" alt="RPW" className="w-full h-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-gray-900 text-sm">Install RPW Detect</p>

@@ -4,7 +4,7 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const srcImage  = join(__dirname, 'Gemini_Generated_Image_mnqsctmnqsctmnqs.png')
+const srcImage  = join(__dirname, 'public', 'appstore-images', 'android', 'launchericon-512x512.png')
 const outDir    = join(__dirname, 'public', 'icons')
 
 mkdirSync(outDir, { recursive: true })

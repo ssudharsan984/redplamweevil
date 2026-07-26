@@ -34,7 +34,9 @@ export default function Login() {
         <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white/5 rounded-full" />
 
         <div className="relative z-10 text-center">
-          <div className="text-8xl mb-6 drop-shadow-2xl">🌴</div>
+          <div className="mb-6 flex items-center justify-center">
+            <img src="/appstore-images/android/launchericon-192x192.png" alt="RPW Logo" className="w-24 h-24 rounded-2xl shadow-2xl" />
+          </div>
           <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight">RPW Detection</h1>
           <p className="text-primary-200 text-lg mb-10">AI-Based Red Palm Weevil<br />Monitoring System</p>
 
@@ -61,15 +63,15 @@ export default function Login() {
 
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="text-5xl mb-2">🌴</div>
+            <img src="/appstore-images/android/launchericon-192x192.png" alt="RPW Logo" className="w-20 h-20 rounded-2xl shadow-lg mx-auto mb-3" />
             <h1 className="text-2xl font-bold text-primary-700">RPW Detection System</h1>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-8">
             {/* Header */}
             <div className="mb-7">
-              <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center text-3xl mb-4">
-                🔐
+              <div className="w-14 h-14 rounded-2xl overflow-hidden shadow mb-4">
+                <img src="/appstore-images/android/launchericon-144x144.png" alt="RPW" className="w-full h-full object-cover" />
               </div>
               <h2 className="text-2xl font-extrabold text-gray-900">Welcome back</h2>
               <p className="text-gray-400 text-sm mt-1">Sign in to access your monitoring dashboard</p>
