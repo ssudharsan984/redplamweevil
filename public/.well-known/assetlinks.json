@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.redplamweevil.twa",
+      "sha256_cert_fingerprints": [
+        "E1:AC:D6:8F:6A:3C:7F:A6:6A:20:75:E0:A7:95:E4:C9:A3:96:C1:8B:20:95:FC:23:35:42:B6:E0:C2:35:BA:3A"
+      ]
+    }
+  }
+]
