@@ -8,14 +8,18 @@ import {
   query,
   orderBy,
   limit,
+  where,
   setDoc,
+  getDocs,
+  writeBatch,
   serverTimestamp,
 } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../firebase/firebase'
 
-const TRAPS    = 'traps'
-const SETTINGS = 'settings'
+const TRAPS          = 'traps'
+const SETTINGS       = 'settings'
+const NOTIFICATIONS  = 'notifications'
 
 // ─── Traps (main collection — written by Python YOLO script) ─────────────────
 
@@ -75,6 +79,70 @@ export const subscribeToSettings = (userId, callback) => {
 
 export const saveSettings = (userId, data) =>
   setDoc(doc(db, SETTINGS, userId), data, { merge: true })
+
+// ─── Notifications (Firestore collection) ─────────────────────────────────────
+
+/**
+ * Subscribe to all notifications ordered by latest timestamp.
+ * Firestore doc shape:
+ * { title, message, type, read, userId?, trapId?, timestamp }
+ *
+ * Optionally filter by userId.
+ */
+export const subscribeToNotifications = (callback, userId = null) => {
+  let q
+  if (userId) {
+    q = query(
+      collection(db, NOTIFICATIONS),
+      where('userId', '==', userId),
+      orderBy('timestamp', 'desc')
+    )
+  } else {
+    q = query(collection(db, NOTIFICATIONS), orderBy('timestamp', 'desc'))
+  }
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export const subscribeToRecentNotifications = (callback, count = 5, userId = null) => {
+  let q
+  if (userId) {
+    q = query(
+      collection(db, NOTIFICATIONS),
+      where('userId', '==', userId),
+      orderBy('timestamp', 'desc'),
+      limit(count)
+    )
+  } else {
+    q = query(
+      collection(db, NOTIFICATIONS),
+      orderBy('timestamp', 'desc'),
+      limit(count)
+    )
+  }
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+/** Mark a single notification as read */
+export const markNotificationRead = (notifId) =>
+  updateDoc(doc(db, NOTIFICATIONS, notifId), { read: true })
+
+/** Mark all notifications as read for a user */
+export const markAllNotificationsRead = async (userId) => {
+  const snapshot = await getDocs(
+    query(
+      collection(db, NOTIFICATIONS),
+      where('userId', '==', userId),
+      where('read', '==', false)
+    )
+  )
+  const batch = writeBatch(db)
+  snapshot.docs.forEach((d) => batch.update(d.ref, { read: true }))
+  return batch.commit()
+}
 
 // ─── Python YOLO Integration (ready — no changes needed in frontend) ──────────
 //

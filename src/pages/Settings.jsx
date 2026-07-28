@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../context/AuthContext'
 import { subscribeToSettings, saveSettings } from '../services/firestoreService'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from '../firebase/firebase'
