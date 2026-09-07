@@ -29,7 +29,7 @@ export const ToastProvider = ({ children }) => {
               animate-slide-in transition-all
               ${type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800'}`}
           >
-            <span>{type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+            <span>{type === 'success' ? '✓' : type === 'error' ? '✕' : 'i'}</span>
             <span>{message}</span>
           </div>
         ))}
