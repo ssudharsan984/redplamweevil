@@ -7,6 +7,7 @@ import SplashScreen from './pages/SplashScreen'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
+import Profile from './pages/Profile'
 import Dashboard from './pages/Dashboard'
 import DetectionHistory from './pages/DetectionHistory'
 import TrapDetails from './pages/TrapDetails'
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Protected routes */}
+            <Route path="/profile"   element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/history"   element={<ProtectedRoute><DetectionHistory /></ProtectedRoute>} />
             <Route path="/traps"     element={<ProtectedRoute><TrapDetails /></ProtectedRoute>} />

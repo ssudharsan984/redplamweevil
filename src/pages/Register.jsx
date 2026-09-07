@@ -3,28 +3,46 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
-export default function Register() {
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirm: '' })
-  const [showPass, setShowPass] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-  const { register } = useAuth()
-  const toast = useToast()
-  const navigate = useNavigate()
+// InputField MUST be outside Register to prevent re-mount on every keystroke
+function InputField({ label, error, icon, children }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none">{icon}</span>
+        {children}
+      </div>
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  )
+}
 
-  const set = (k, v) => { setForm((p) => ({ ...p, [k]: v })); setErrors((p) => ({ ...p, [k]: '' })) }
+export default function Register() {
+  const [fullName, setFullName]   = useState('')
+  const [email, setEmail]         = useState('')
+  const [phone, setPhone]         = useState('')
+  const [password, setPassword]   = useState('')
+  const [confirm, setConfirm]     = useState('')
+  const [showPass, setShowPass]   = useState(false)
+  const [errors, setErrors]       = useState({})
+  const [loading, setLoading]     = useState(false)
+  const { register }              = useAuth()
+  const toast                     = useToast()
+  const navigate                  = useNavigate()
+
+  const clearErr = (k) => setErrors((p) => ({ ...p, [k]: '' }))
 
   const validate = () => {
     const e = {}
-    if (!form.fullName.trim()) e.fullName = 'Full name is required.'
-    if (!form.email.trim()) e.email = 'Email is required.'
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email.'
-    if (!form.phone.trim()) e.phone = 'Phone number is required.'
-    else if (!/^\+?[\d\s\-]{7,15}$/.test(form.phone)) e.phone = 'Enter a valid phone number.'
-    if (!form.password) e.password = 'Password is required.'
-    else if (form.password.length < 8) e.password = 'Password must be at least 8 characters.'
-    if (!form.confirm) e.confirm = 'Please confirm your password.'
-    else if (form.password !== form.confirm) e.confirm = 'Passwords do not match.'
+    if (!fullName.trim()) e.fullName = 'Full name is required.'
+    if (!email.trim()) e.email = 'Email is required.'
+    else if (!/\S+@\S+\.\S+/.test(email)) e.email = 'Enter a valid email.'
+    if (!phone.trim()) e.phone = 'Phone number is required.'
+    else if (!/^\+?[\d\s\-]{7,15}$/.test(phone)) e.phone = 'Enter a valid phone number.'
+    if (!password) e.password = 'Password is required.'
+    else if (password.length < 8) e.password = 'Password must be at least 8 characters.'
+    if (!confirm) e.confirm = 'Please confirm your password.'
+    else if (password !== confirm) e.confirm = 'Passwords do not match.'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -34,8 +52,8 @@ export default function Register() {
     if (!validate()) return
     setLoading(true)
     try {
-      await register({ fullName: form.fullName, email: form.email, phone: form.phone, password: form.password })
-      toast.success('Account created successfully! Welcome to RPW Detect.')
+      await register({ fullName, email, phone, password })
+      toast.success('Account created successfully!')
       navigate('/dashboard', { replace: true })
     } catch (err) {
       toast.error(getErrorMessage(err.code))
@@ -43,6 +61,10 @@ export default function Register() {
       setLoading(false)
     }
   }
+
+  const strengthLevel = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 8 ? 2 : password.length < 12 ? 3 : 4
+  const strengthColor = ['bg-gray-200', 'bg-red-400', 'bg-yellow-400', 'bg-blue-400', 'bg-green-500']
+  const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong']
 
   return (
     <div className="min-h-screen flex">
@@ -89,65 +111,90 @@ export default function Register() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              {/* Full Name */}
               <InputField label="Full Name" error={errors.fullName} icon={<UserIcon />}>
-                <input type="text" className={`input pl-9 ${errors.fullName ? 'border-red-400' : ''}`}
-                  placeholder="John Doe" value={form.fullName}
-                  onChange={(e) => set('fullName', e.target.value)} autoComplete="name" />
+                <input
+                  type="text"
+                  className={`input pl-9 ${errors.fullName ? 'border-red-400' : ''}`}
+                  placeholder="John Doe"
+                  value={fullName}
+                  onChange={(e) => { setFullName(e.target.value); clearErr('fullName') }}
+                  autoComplete="name"
+                />
               </InputField>
 
-              {/* Email */}
               <InputField label="Email Address" error={errors.email} icon={<MailIcon />}>
-                <input type="email" className={`input pl-9 ${errors.email ? 'border-red-400' : ''}`}
-                  placeholder="you@example.com" value={form.email}
-                  onChange={(e) => set('email', e.target.value)} autoComplete="email" />
+                <input
+                  type="email"
+                  className={`input pl-9 ${errors.email ? 'border-red-400' : ''}`}
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); clearErr('email') }}
+                  autoComplete="email"
+                />
               </InputField>
 
-              {/* Phone */}
               <InputField label="Phone Number" error={errors.phone} icon={<PhoneIcon />}>
-                <input type="tel" className={`input pl-9 ${errors.phone ? 'border-red-400' : ''}`}
-                  placeholder="+91 9876543210" value={form.phone}
-                  onChange={(e) => set('phone', e.target.value)} autoComplete="tel" />
+                <input
+                  type="tel"
+                  className={`input pl-9 ${errors.phone ? 'border-red-400' : ''}`}
+                  placeholder="+91 9876543210"
+                  value={phone}
+                  onChange={(e) => { setPhone(e.target.value); clearErr('phone') }}
+                  autoComplete="tel"
+                />
               </InputField>
 
               {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"><LockIcon /></span>
-                  <input type={showPass ? 'text' : 'password'}
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none"><LockIcon /></span>
+                  <input
+                    type={showPass ? 'text' : 'password'}
                     className={`input pl-9 pr-10 ${errors.password ? 'border-red-400' : ''}`}
-                    placeholder="Min. 8 characters" value={form.password}
-                    onChange={(e) => set('password', e.target.value)} autoComplete="new-password" />
+                    placeholder="Min. 8 characters"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); clearErr('password') }}
+                    autoComplete="new-password"
+                  />
                   <button type="button" onClick={() => setShowPass(!showPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4">
                     {showPass ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 </div>
                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                {form.password && (
-                  <div className="mt-1.5 flex gap-1">
-                    {[1,2,3,4].map((i) => (
-                      <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
-                        form.password.length >= i * 2
-                          ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-yellow-400' : i <= 3 ? 'bg-blue-400' : 'bg-green-500'
-                          : 'bg-gray-200'}`} />
-                    ))}
+                {password.length > 0 && (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[1,2,3,4].map((i) => (
+                        <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= strengthLevel ? strengthColor[strengthLevel] : 'bg-gray-200'}`} />
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400">Password strength: <span className="font-medium">{strengthLabel[strengthLevel]}</span></p>
                   </div>
                 )}
               </div>
 
               {/* Confirm Password */}
-              <InputField label="Confirm Password" error={errors.confirm} icon={<LockIcon />}>
-                <input type={showPass ? 'text' : 'password'}
-                  className={`input pl-9 ${errors.confirm ? 'border-red-400' : ''}`}
-                  placeholder="Re-enter password" value={form.confirm}
-                  onChange={(e) => set('confirm', e.target.value)} autoComplete="new-password" />
-              </InputField>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none"><LockIcon /></span>
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    className={`input pl-9 ${errors.confirm ? 'border-red-400' : ''}`}
+                    placeholder="Re-enter password"
+                    value={confirm}
+                    onChange={(e) => { setConfirm(e.target.value); clearErr('confirm') }}
+                    autoComplete="new-password"
+                  />
+                </div>
+                {errors.confirm && <p className="text-red-500 text-xs mt-1">{errors.confirm}</p>}
+              </div>
 
               {/* Role */}
               <div className="flex items-center gap-3 bg-primary-50 border border-primary-100 rounded-xl px-4 py-3">
-                <div className="w-5 h-5 text-primary-600"><FarmerIcon /></div>
+                <div className="w-5 h-5 text-primary-600"><ShieldIcon /></div>
                 <div>
                   <p className="text-xs text-gray-500">Account Role</p>
                   <p className="text-sm font-semibold text-primary-700">Farmer</p>
@@ -155,7 +202,7 @@ export default function Register() {
               </div>
 
               <button type="submit" disabled={loading}
-                className="btn-primary w-full py-3 text-base flex items-center justify-center gap-2 mt-2">
+                className="btn-primary w-full py-3 text-base flex items-center justify-center gap-2">
                 {loading
                   ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Creating account...</>
                   : 'Create Account'}
@@ -169,19 +216,6 @@ export default function Register() {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-function InputField({ label, error, icon, children }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4">{icon}</span>
-        {children}
-      </div>
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   )
 }
@@ -203,4 +237,4 @@ const LockIcon   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const EyeIcon    = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
 const EyeOffIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
 const CheckIcon  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
-const FarmerIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 12v10"/><path d="M8 16l4-4 4 4"/></svg>
+const ShieldIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
