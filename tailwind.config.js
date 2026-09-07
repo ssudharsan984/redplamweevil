@@ -16,24 +16,32 @@ export default {
           800: '#166534',
           900: '#14532d',
         },
-        danger:  { 500: '#ef4444', 600: '#dc2626' },
-        warning: { 500: '#f59e0b', 600: '#d97706' },
+        danger: {
+          50:  '#fff1f2',
+          100: '#ffe4e6',
+          200: '#fecdd3',
+          500: '#f43f5e',
+          600: '#e11d48',
+          700: '#be123c',
+        },
+        amber: {
+          50:  '#fffbeb',
+          100: '#fef3c7',
+          500: '#f59e0b',
+          600: '#d97706',
+        }
       },
-      animation: {
-        'bounce-slow': 'bounce 2s infinite',
-        'slide-in':    'slideIn 0.3s ease-out',
-        'fade-in':     'fadeIn 0.5s ease-out',
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       keyframes: {
-        slideIn: {
-          '0%':   { opacity: '0', transform: 'translateX(100%)' },
-          '100%': { opacity: '1', transform: 'translateX(0)' },
-        },
-        fadeIn: {
-          '0%':   { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
+        slideIn: { from: { opacity: '0', transform: 'translateY(-8px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+        fadeIn:  { from: { opacity: '0' }, to: { opacity: '1' } },
       },
+      animation: {
+        'slide-in': 'slideIn 0.25s ease-out',
+        'fade-in':  'fadeIn 0.2s ease-out',
+      }
     }
   },
   plugins: []

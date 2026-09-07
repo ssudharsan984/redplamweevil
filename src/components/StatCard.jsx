@@ -1,17 +1,10 @@
-export default function StatCard({ label, value, icon, colorClass = 'text-primary-600', bgClass = 'bg-primary-50', trend }) {
+export default function StatCard({ label, value, icon, colorClass = 'text-primary-600', bgClass = 'bg-primary-50' }) {
   return (
-    <div className="card group cursor-default">
-      <div className="flex items-start justify-between mb-3">
-        <div className={`w-12 h-12 ${bgClass} rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-200`}>
-          {icon}
-        </div>
-        {trend != null && (
-          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${trend >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-            {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}%
-          </span>
-        )}
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+      <div className={`w-11 h-11 ${bgClass} rounded-xl flex items-center justify-center mb-4`}>
+        <div className={`w-5 h-5 ${colorClass}`}>{icon}</div>
       </div>
-      <p className={`text-3xl font-extrabold ${colorClass} leading-none mb-1`}>{value}</p>
+      <p className={`text-3xl font-extrabold ${colorClass} leading-none mb-1.5`}>{value}</p>
       <p className="text-sm text-gray-500 font-medium">{label}</p>
     </div>
   )

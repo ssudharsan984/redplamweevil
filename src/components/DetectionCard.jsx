@@ -3,100 +3,86 @@ import { formatDate, formatConfidence, formatTimeAgo, getConfidenceColor, getCon
 
 export default function DetectionCard({ detection, onDelete, onClick }) {
   const [imgError, setImgError] = useState(false)
-  const { trapId, status, confidence, imageUrl, timestamp, location, description } = detection
-  const detected = isDetected(detection)
+  const { trapId, status, confidence, imageUrl, timestamp, location } = detection
+  const detected  = isDetected(detection)
   const confValue = normalizeConfidence(confidence)
 
   return (
-    <div
-      onClick={onClick}
-      className={`card group relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5
-        ${detected ? 'border-l-4 border-l-red-400' : 'border-l-4 border-l-emerald-400'}
-        ${onClick ? 'cursor-pointer' : ''}`}
-    >
-      {/* Glow */}
-      <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-10 -mr-8 -mt-8
-        ${detected ? 'bg-red-500' : 'bg-emerald-500'}`} />
+    <div onClick={onClick}
+      className={`bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden
+        ${detected ? 'border-danger-200' : 'border-primary-200'}
+        ${onClick ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}>
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-3 relative">
-        <div>
-          <p className="text-xs text-gray-400 font-medium uppercase tracking-widest mb-0.5">Trap ID</p>
-          <p className="font-extrabold text-gray-900 text-xl leading-none">{trapId || '—'}</p>
-        </div>
-        <span className={detected ? 'badge-detected' : 'badge-clear'}>
-          {detected ? '🚨 RPW Detected' : '✅ No RPW'}
-        </span>
-      </div>
+      {/* Status bar */}
+      <div className={`h-1 w-full ${detected ? 'bg-danger-500' : 'bg-primary-500'}`} />
 
-      {/* Detection Image from Firebase Storage */}
-      {imageUrl && !imgError ? (
-        <div className="mb-3 rounded-xl overflow-hidden bg-gray-100 h-44 relative">
-          <img
-            src={imageUrl}
-            alt={`Detection from ${trapId}`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={() => setImgError(true)}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-          <span className="absolute bottom-2 right-2 text-xs bg-black/50 text-white px-2 py-0.5 rounded-full">
-            📷 Detection Image
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2 mb-4">
+          <div>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-0.5">Trap ID</p>
+            <p className="text-xl font-extrabold text-gray-900">{trapId || '—'}</p>
+          </div>
+          <span className={detected ? 'badge-detected' : 'badge-clear'}>
+            {detected ? 'RPW Detected' : 'No RPW'}
           </span>
         </div>
-      ) : imageUrl && imgError ? (
-        <div className="mb-3 rounded-xl bg-gray-100 h-20 flex items-center justify-center text-gray-400 text-sm border border-dashed border-gray-200">
-          🖼️ Image unavailable
-        </div>
-      ) : null}
 
-      {/* Details */}
-      <div className="space-y-2.5 text-sm">
-        <div className="flex items-center gap-2">
-          <span>🕐</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400">Detection Time</p>
-            <p className="font-medium text-gray-800 truncate">{formatDate(timestamp)}</p>
-          </div>
-          <span className="text-xs text-gray-400 flex-shrink-0">{formatTimeAgo(timestamp)}</span>
-        </div>
-
-        {location && (
-          <div className="flex items-center gap-2">
-            <span>📍</span>
-            <div>
-              <p className="text-xs text-gray-400">Location</p>
-              <p className="font-medium text-gray-800">{location}</p>
-            </div>
+        {/* Image */}
+        {imageUrl && !imgError && (
+          <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 h-44 relative">
+            <img src={imageUrl} alt={`Detection from ${trapId}`}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              onError={() => setImgError(true)} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>
         )}
 
-        {/* Confidence bar */}
-        {confValue != null && (
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-gray-400">Confidence Score</p>
-              <p className={`text-sm font-bold ${getConfidenceColor(confidence)}`}>
-                {formatConfidence(confidence)}
-              </p>
+        {/* Details */}
+        <div className="space-y-2.5 text-sm">
+          <div className="flex items-center gap-2.5">
+            <div className="w-4 h-4 text-gray-400 flex-shrink-0"><ClockIcon /></div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400">Detection Time</p>
+              <p className="font-medium text-gray-800 text-xs">{formatDate(timestamp)}</p>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-700 ${getConfidenceBarColor(confidence)}`}
-                style={{ width: `${confValue}%` }}
-              />
-            </div>
+            <span className="text-xs text-gray-400">{formatTimeAgo(timestamp)}</span>
           </div>
+
+          {location && (
+            <div className="flex items-center gap-2.5">
+              <div className="w-4 h-4 text-gray-400 flex-shrink-0"><PinIcon /></div>
+              <div>
+                <p className="text-xs text-gray-400">Location</p>
+                <p className="font-medium text-gray-800 text-xs">{location}</p>
+              </div>
+            </div>
+          )}
+
+          {confValue != null && (
+            <div className="pt-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-xs text-gray-400">Confidence</p>
+                <p className={`text-sm font-bold ${getConfidenceColor(confidence)}`}>{formatConfidence(confidence)}</p>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div className={`h-1.5 rounded-full transition-all duration-700 ${getConfidenceBarColor(confidence)}`}
+                  style={{ width: `${confValue}%` }} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {onDelete && (
+          <button onClick={(e) => { e.stopPropagation(); onDelete(detection.id) }}
+            className="mt-4 w-full text-xs text-danger-400 hover:text-danger-600 hover:bg-danger-50 py-1.5 rounded-lg transition-colors border border-transparent hover:border-danger-100">
+            Delete record
+          </button>
         )}
       </div>
-
-      {onDelete && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(detection.id) }}
-          className="mt-4 w-full text-xs text-red-400 hover:text-red-600 hover:bg-red-50 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-100"
-        >
-          🗑 Delete record
-        </button>
-      )}
     </div>
   )
 }
+
+const ClockIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+const PinIcon   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>

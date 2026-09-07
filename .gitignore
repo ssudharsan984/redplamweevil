@@ -5,4 +5,3 @@ dev-dist
 .env.local
 .DS_Store
 *.local
-generate-icons.mjs

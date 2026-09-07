@@ -8,36 +8,35 @@ export default function SplashScreen() {
 
   useEffect(() => {
     if (loading) return
-    const timer = setTimeout(() => {
-      navigate(user ? '/dashboard' : '/login', { replace: true })
-    }, 2000)
-    return () => clearTimeout(timer)
+    const t = setTimeout(() => navigate(user ? '/dashboard' : '/login', { replace: true }), 1800)
+    return () => clearTimeout(t)
   }, [loading, user, navigate])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-700 to-primary-500 flex flex-col items-center justify-center relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3" />
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{ background: 'linear-gradient(145deg, #14532d 0%, #166534 50%, #15803d 100%)' }}>
 
-      <div className="relative z-10 flex flex-col items-center gap-6">
-        <div className="w-28 h-28 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/20">
+      <div className="absolute inset-0 opacity-10"
+        style={{ backgroundImage: 'radial-gradient(circle at 25% 75%, #4ade80 0%, transparent 50%), radial-gradient(circle at 75% 25%, #86efac 0%, transparent 50%)' }} />
+
+      <div className="relative z-10 flex flex-col items-center gap-5 animate-fade-in">
+        <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/20">
           <img src="/appstore-images/android/launchericon-192x192.png" alt="RPW Detect" className="w-full h-full object-cover" />
         </div>
-
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-white tracking-tight">RPW Detect</h1>
-          <p className="text-primary-200 mt-1 text-sm">Red Palm Weevil Detection System</p>
+          <p className="text-green-200 mt-1.5 text-sm">Red Palm Weevil Detection System</p>
         </div>
-
-        <div className="flex flex-col items-center gap-3 mt-2">
-          <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-          <p className="text-primary-200 text-xs">
-            {loading ? 'Checking authentication...' : user ? 'Welcome back!' : 'Loading...'}
-          </p>
+        <div className="flex flex-col items-center gap-2 mt-2">
+          <div className="relative w-8 h-8">
+            <div className="absolute inset-0 rounded-full border-4 border-white/20" />
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-white animate-spin" />
+          </div>
+          <p className="text-green-200 text-xs">{loading ? 'Checking authentication...' : user ? 'Welcome back!' : 'Loading...'}</p>
         </div>
       </div>
 
-      <p className="absolute bottom-6 text-primary-300 text-xs">v1.0.0 · RPW Monitoring System</p>
+      <p className="absolute bottom-6 text-green-300/60 text-xs">v1.0.0</p>
     </div>
   )
 }
